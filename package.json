@@ -1,0 +1,29 @@
+{
+  "name": "serialkiller",
+  "version": "0.0.1",
+  "description": "(alpha) C++ library to help with serializing and deserializing objects",
+  "main": " ",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "configure": "./waf configure",
+    "build" : "./waf build",
+    "configure-build": "npm run configure build",
+    "__install" : "./waf configure install_local",
+    "install" : "npm run debug",
+    "debug" : "node test.js"
+  },
+  "keywords": [
+    "c++",
+    "serialization"
+  ],
+  "author": "Paulo Brizolara",
+  "license": "MIT",
+  "dependencies": {
+    "commonexceptions" : "https://github.com/paulobrizolara/CommonExceptions.git"
+  },
+  "devDependencies": {
+    "catch" : "../Catch"
+  }
+}

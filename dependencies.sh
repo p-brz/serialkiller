@@ -1,0 +1,9 @@
+#!/bin/bash
+
+LIBS_DIR=./node_modules
+
+export COMMONEXCEPTIONS_ROOT=$LIBS_DIR/commonexceptions
+export COMMONEXCEPTIONS_INCLUDES=$COMMONEXCEPTIONS_ROOT/src
+export COMMONEXCEPTIONS_LIB=$COMMONEXCEPTIONS_ROOT/build
+
+export CATCH_INCLUDES=$LIBS_DIR/catch/single_include

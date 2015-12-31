@@ -1,0 +1,10 @@
+#diretories
+build/
+node_modules/
+gen/
+
+### Waf ### # Created by https://www.gitignore.io/api/waf
+# for projects that use Waf for building: http://code.google.com/p/waf/
+.waf-*
+.waf3-*
+.lock-*

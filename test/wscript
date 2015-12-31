@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from waflib import Logs
+from waflib.Build import BuildContext
+
+def options(opt):
+    opt.add_option("-t","--tests"
+                    , action="append", default=[]
+                    , help="specify filters to run tests")
+
+
+def build(bld):
+    print "bld test/unit"
+    print
+
+    bld(name = 'catch'
+        , features = 'cxx'
+        , export_includes = 'libs/catch')
+
+    bld.objects( target   = 'testobjs',
+        features = 'cxx',
+        cflags = ['-g'],
+        linkflags=['-g'],
+        includes = ['.'] ,
+        source   = bld.path.ant_glob('**/*.cpp',  excl=['mainTest.cpp', 'prototype/**'], src=True, dir=False),
+        #use      = ['catch','calmphotoframe','FREEIMAGE','POCO','CIVET_DEPS'])
+        use      = ['catch','calmphotoframe', 'PocoUtil_objs', 'calmphotoframe-daemon_objs'])
+
+    target = bld.program( target   = 'testmain',
+        features = 'cxx',
+        cflags = ['-g'],
+        linkflags=['-g'],
+        source   = 'mainTest.cpp',
+        install_path = None, #do not install test program
+        use      = ['testobjs','calmphotoframe'],
+        lib=['pthread','dl', 'rt'])
+
+def profile(bld):
+    ''' WARNING: not working yet'''
+
+    target.post()
+    testmain = target.link_task.outputs[0]
+
+    testListNode = bld.path.get_bld().make_node("tests.txt")
+    bld.run("testmain --list-test-names-only > ${TGT[0].abspath()} || true"
+                , target=[testListNode]
+                , name="list_tests"
+                , always=True #always Apenas para testes
+                , update_outputs = True)
+
+    bld(rule="cat ${SRC}", source=[testListNode])
+
+    execsNode = bld.path.get_bld().find_or_declare("testexecs.txt")
+    bld(source=[testListNode, testmain], target=execsNode, rule=make_testExecs)
+#    bld(rule="cp ${SRC[0].abspath()} ${TGT[0].abspath()} && ls ${SRC[1].abspath()}"
+#                , source=[testListNode, testmain], target=execsNode, shell=True)
+
+    #FIXME: profileFromFile tenta ler arquivo gerado pela regra anterior antes dela estar completa
+    #FIXME: problema na execução dos testes
+    #bld.profileFromFile(source=[execsNode], cwd=bld.srcnode.abspath())
+
+def make_testExecs(task):
+    testExec = task.inputs[1].abspath()
+    inputPath = task.inputs[0].abspath()
+    outPath = task.outputs[0].abspath()
+
+#    print inputFile + " + " + testExec + " -> " + outFile
+
+    with open(inputPath) as inFile:
+        with open(outPath, 'w') as outFile:
+            for line in inFile.readlines():
+                outFile.write("%s \"%s\"\n" % (testExec, line.strip()))
+
+def test(bld):
+    print "unit tests"
+    bld.run("echo 'it works recursively also'", always=True)
+
+    print "prepare"
+
+    bld.run('testmain ${TESTS}', cwd=bld.srcnode.abspath())
+
+    print "after "
